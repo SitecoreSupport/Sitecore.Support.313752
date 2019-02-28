@@ -1,4 +1,4 @@
-﻿namespace Sitecore.Cintel.Reporting.Aggregate.Visitors.Processors
+﻿namespace Sitecore.Support.Cintel.Reporting.Aggregate.Visitors.Processors
 {
   using System;
   using System.Data;
@@ -13,6 +13,9 @@
   using Sitecore.ContentSearch.Linq.Extensions;
   using Sitecore.ContentSearch.Linq.Nodes;
   using Sitecore.ContentSearch.Utilities;
+  using Sitecore.Cintel.Reporting.Aggregate.Visitors;
+  using Sitecore.Cintel.Reporting;
+
   public class QueryLatestVisitorsFromSearch : ReportProcessorBase
   {
     public override void Process(ReportProcessorArgs args)
@@ -21,8 +24,15 @@
 
       using (var ctx = analyticsIndex.CreateSearchContext())
       {
-        var rawSearchResults = ctx.GetQueryable<IndexedContact>();
-
+        #region Modified code
+        int period = Sitecore.Configuration.Settings.GetIntSetting("ExperienceProfile.ResultsPeriodInHours", 24);
+        // retrieve the last interactions within the specified time range
+        var lastVisits = ctx.GetQueryable<IndexedVisit>().Where(iv => iv.StartDateTime > (DateTime.Now.AddHours(period * (-1))));
+        // retieve contact ids that are related to the latests interactions
+        var contactIds = lastVisits.Select(ic => ic.ContactId);
+        // "convert" contact ids into IndexedContact
+        var rawSearchResults = ctx.GetQueryable<IndexedContact>().Where(ic => contactIds.ToList().Contains(ic.ContactId));
+        #endregion
         args.ResultSet.TotalResultCount = ctx.GetQueryable<IndexedContact>().Count();
 
         rawSearchResults.ForEach(sr =>
