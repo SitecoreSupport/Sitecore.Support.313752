@@ -78,7 +78,9 @@
     <Compile Include="QueryLatestVisitorsFromSearch.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Config\Include\zzz\Sitecore.Support.313752.config" />
+    <Content Include="App_Config\Include\zzz\Sitecore.Support.313752.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

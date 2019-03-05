@@ -28,6 +28,9 @@
         int period = Sitecore.Configuration.Settings.GetIntSetting("ExperienceProfile.ResultsPeriodInHours", 24);
         // retrieve the last interactions within the specified time range
         var lastVisits = ctx.GetQueryable<IndexedVisit>().Where(iv => iv.StartDateTime > (DateTime.Now.AddHours(period * (-1))));
+        if (lastVisits.Count() == 0)
+          lastVisits = ctx.GetQueryable<IndexedVisit>().OrderByDescending(iv => iv.StartDateTime);
+
         // retieve contact ids that are related to the latests interactions
         var contactIds = lastVisits.Select(ic => ic.ContactId);
         // "convert" contact ids into IndexedContact
